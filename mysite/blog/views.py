@@ -4,8 +4,8 @@ from django.core.paginator import Paginator, EmptyPage,\
                                      PageNotAnInteger
 from django.core.mail import send_mail
 
-from blog.models import Post
-from blog.forms import EmailPostForm
+from blog.models import Post, Comment
+from blog.forms import EmailPostForm, CommentForm
 
 
 class PostListView(ListView):
