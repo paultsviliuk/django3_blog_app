@@ -1,4 +1,4 @@
-from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
+from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank, TrigramSimilarity
 from django.db.models import Count
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView
@@ -119,11 +119,14 @@ def post_search(request):
             # search_vector = SearchVector('title', 'body')  # first variant without weighting queries
             search_vector = SearchVector('title', weight='A') + SearchVector('title', weight='B')
             search_query = SearchQuery(query)
-            results = Post.published.annotate(
-                search=search_vector,
-                rank=SearchRank(search_vector, search_query)
-            ).filter(rank__gte=0.3).order_by('-rank')
+            # results = Post.published.annotate(
+            #     search=search_vector,
+            #     rank=SearchRank(search_vector, search_query)
+            # ).filter(rank__gte=0.3).order_by('-rank')
             # ).filter(search=search_query).order_by('-rank')  # first variant without weighting queries
+            results = Post.published.annotate(
+                similarity=TrigramSimilarity('title', query)
+            ).filter(similarity__gt=0.1).order_by('-similarity')
     return render(request,
                   'blog/post/search.html',
                   {'form': form,
